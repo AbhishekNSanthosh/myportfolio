@@ -13,11 +13,11 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Abhishek S | Full Stack Developer",
+  title: "Abhishek Santhosh | Full Stack Developer",
   description:
-    "Portfolio of Abhishek S, a passionate full-stack developer with a backend focus, strong UI/UX sense, and cybersecurity experience.",
+    "Portfolio of Abhishek Santhosh, a passionate full-stack developer with a backend focus, strong UI/UX sense, and cybersecurity experience.",
   keywords: [
-    "Abhishek S",
+    "Abhishek Santhosh",
     "Full Stack Developer",
     "Next.js",
     "React",
@@ -27,17 +27,17 @@ export const metadata: Metadata = {
     "Software Developer",
   ],
   openGraph: {
-    title: "Abhishek S | Full Stack Developer",
+    title: "Abhishek Santhosh | Full Stack Developer",
     description:
       "Passionate full-stack developer with a backend focus, strong UI/UX sense, and cybersecurity experience.",
     url: "https://abhisheksanthosh.com",
-    siteName: "Abhishek S Portfolio",
+    siteName: "Abhishek Santhosh Portfolio",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Abhishek S - Full Stack Developer",
+        alt: "Abhishek Santhosh - Full Stack Developer",
       },
     ],
     locale: "en_US",

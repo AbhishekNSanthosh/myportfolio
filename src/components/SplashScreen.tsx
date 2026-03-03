@@ -16,261 +16,246 @@ export default function SplashScreen({
     if (!container) return;
 
     const ctx = gsap.context(() => {
+      // Counter animation
+      const counterObj = { val: 0 };
+      gsap.to(counterObj, {
+        val: 100,
+        duration: 3.0,
+        ease: "power1.inOut",
+        onUpdate: () => setCount(Math.floor(counterObj.val)),
+      });
+
       const tl = gsap.timeline({
         onComplete: () => {
-          // Exit animation
-          const exitTl = gsap.timeline({ onComplete });
+          // === EXIT SEQUENCE ===
+          const exit = gsap.timeline({ onComplete });
 
-          exitTl
-            .to(".splash-content", {
-              scale: 0.8,
-              opacity: 0,
-              duration: 0.5,
-              ease: "power3.in",
-            })
+          // Flash white
+          exit.to(".splash-flash", {
+            opacity: 1,
+            duration: 0.15,
+            ease: "power4.in",
+          });
+
+          // Bars slide away (cinematic wipe)
+          exit
             .to(
-              ".splash-line-h",
-              {
-                scaleX: 3,
-                opacity: 0,
-                duration: 0.6,
-                ease: "power2.in",
-              },
-              "-=0.3"
-            )
-            .to(
-              ".splash-line-v",
-              {
-                scaleY: 3,
-                opacity: 0,
-                duration: 0.6,
-                ease: "power2.in",
-              },
-              "-=0.6"
-            )
-            .to(
-              ".splash-orb",
-              {
-                scale: 20,
-                opacity: 0,
-                duration: 0.8,
-                ease: "power2.in",
-              },
-              "-=0.5"
-            )
-            .to(
-              container,
+              ".splash-bar-top",
               {
                 yPercent: -100,
                 duration: 0.8,
                 ease: "power4.inOut",
               },
-              "-=0.3"
+              0.1
+            )
+            .to(
+              ".splash-bar-bottom",
+              {
+                yPercent: 100,
+                duration: 0.8,
+                ease: "power4.inOut",
+              },
+              0.1
             );
+
+          // Flash fades
+          exit.to(
+            ".splash-flash",
+            {
+              opacity: 0,
+              duration: 0.6,
+              ease: "power2.out",
+            },
+            0.2
+          );
         },
       });
 
-      // Counter animation
-      const counterObj = { val: 0 };
-      gsap.to(counterObj, {
-        val: 100,
-        duration: 2.4,
-        ease: "power2.inOut",
-        onUpdate: () => setCount(Math.floor(counterObj.val)),
-      });
+      // === ENTRANCE SEQUENCE ===
 
-      // Phase 1: Lines shoot in
+      // Phase 1: Lens flare / anamorphic streak
       tl.fromTo(
-        ".splash-line-h",
+        ".splash-streak",
         { scaleX: 0, opacity: 0 },
         {
           scaleX: 1,
           opacity: 1,
-          duration: 0.6,
-          stagger: 0.08,
+          duration: 0.8,
           ease: "power4.out",
         }
-      )
-        .fromTo(
-          ".splash-line-v",
-          { scaleY: 0, opacity: 0 },
-          {
-            scaleY: 1,
-            opacity: 1,
-            duration: 0.6,
-            stagger: 0.08,
-            ease: "power4.out",
-          },
-          "-=0.4"
-        )
+      );
 
-        // Phase 2: Central orb pulses in
-        .fromTo(
-          ".splash-orb",
-          { scale: 0, opacity: 0 },
-          {
-            scale: 1,
-            opacity: 1,
-            duration: 0.8,
-            ease: "elastic.out(1, 0.5)",
-          },
-          "-=0.2"
-        )
+      // Phase 2: Central glow blooms
+      tl.fromTo(
+        ".splash-glow",
+        { scale: 0.3, opacity: 0 },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 1.0,
+          ease: "power2.out",
+        },
+        "-=0.5"
+      );
 
-        // Phase 3: Logo letter reveal
-        .fromTo(
-          ".splash-letter",
-          { y: 80, opacity: 0, rotateX: -90 },
-          {
-            y: 0,
-            opacity: 1,
-            rotateX: 0,
-            duration: 0.7,
-            stagger: 0.05,
-            ease: "back.out(2)",
-          },
-          "-=0.4"
-        )
+      // Phase 3: Name reveal with mask wipe
+      tl.fromTo(
+        ".splash-name-mask",
+        { clipPath: "inset(0 100% 0 0)" },
+        {
+          clipPath: "inset(0 0% 0 0)",
+          duration: 1.0,
+          ease: "power3.inOut",
+        },
+        "-=0.6"
+      );
 
-        // Phase 4: Tagline slides in
-        .fromTo(
-          ".splash-tagline",
-          { y: 30, opacity: 0, filter: "blur(10px)" },
-          {
-            y: 0,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 0.6,
-            ease: "power3.out",
-          },
-          "-=0.2"
-        )
+      // Phase 4: Underline draws across
+      tl.fromTo(
+        ".splash-underline",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 0.6,
+          ease: "power3.out",
+        },
+        "-=0.3"
+      );
 
-        // Phase 5: Particles burst
-        .fromTo(
-          ".splash-particle",
-          { scale: 0, opacity: 0 },
-          {
-            scale: 1,
-            opacity: 0.6,
-            duration: 0.5,
-            stagger: { each: 0.03, from: "random" },
-            ease: "power2.out",
-          },
-          "-=0.3"
-        )
+      // Phase 5: Tagline fades in with blur
+      tl.fromTo(
+        ".splash-tagline",
+        { opacity: 0, y: 15, filter: "blur(8px)" },
+        {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.7,
+          ease: "power3.out",
+        },
+        "-=0.2"
+      );
 
-        // Phase 6: Counter bar fills
-        .fromTo(
-          ".splash-progress-fill",
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 1.2,
-            ease: "power2.inOut",
-          },
-          "-=1.2"
-        )
+      // Phase 6: Progress bar fills
+      tl.fromTo(
+        ".splash-progress-track",
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3 },
+        "-=0.6"
+      );
 
-        // Hold
-        .to({}, { duration: 0.3 });
+      tl.fromTo(
+        ".splash-progress-fill",
+        { scaleX: 0 },
+        {
+          scaleX: 1,
+          duration: 1.4,
+          ease: "power2.inOut",
+        },
+        "-=0.4"
+      );
+
+      // Phase 7: Corner brackets appear
+      tl.fromTo(
+        ".splash-bracket",
+        { opacity: 0, scale: 0.7 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.4,
+          stagger: 0.05,
+          ease: "power2.out",
+        },
+        "-=1.0"
+      );
+
+      // Hold briefly
+      tl.to({}, { duration: 0.4 });
+
+      // Ambient glow pulse
+      gsap.to(".splash-glow", {
+        scale: 1.1,
+        opacity: 0.7,
+        duration: 2,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+
+      // Streak shimmer
+      gsap.to(".splash-streak-shimmer", {
+        xPercent: 200,
+        duration: 2,
+        repeat: -1,
+        ease: "none",
+      });
     }, container);
 
     return () => ctx.revert();
   }, [onComplete]);
 
-  // Generate particle positions
-  const particles = Array.from({ length: 30 }, (_, i) => ({
-    id: i,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    size: Math.random() * 4 + 2,
-    delay: Math.random() * 0.5,
-  }));
-
-  const name = "ABHISHEK S.";
-
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] bg-zinc-950 flex items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
     >
-      {/* Animated grid lines */}
-      {[20, 40, 60, 80].map((pos) => (
-        <div
-          key={`h-${pos}`}
-          className="splash-line-h absolute h-px bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent origin-center"
-          style={{ top: `${pos}%`, left: 0, right: 0 }}
-        />
-      ))}
-      {[20, 40, 60, 80].map((pos) => (
-        <div
-          key={`v-${pos}`}
-          className="splash-line-v absolute w-px bg-gradient-to-b from-transparent via-cyan-500/20 to-transparent origin-center"
-          style={{ left: `${pos}%`, top: 0, bottom: 0 }}
-        />
-      ))}
+      {/* Split background bars for cinematic wipe exit */}
+      <div className="splash-bar-top absolute top-0 left-0 right-0 h-1/2 bg-zinc-950 z-[1]" />
+      <div className="splash-bar-bottom absolute bottom-0 left-0 right-0 h-1/2 bg-zinc-950 z-[1]" />
 
-      {/* Particles */}
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="splash-particle absolute rounded-full bg-gradient-to-br from-indigo-400 to-cyan-400"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.size,
-            height: p.size,
-          }}
-        />
-      ))}
+      {/* White flash overlay */}
+      <div className="splash-flash absolute inset-0 bg-white z-[3] opacity-0 pointer-events-none" />
 
-      {/* Central glow orb */}
-      <div className="splash-orb absolute w-[500px] h-[500px] rounded-full bg-gradient-to-br from-indigo-500/10 via-cyan-500/5 to-transparent blur-[100px] pointer-events-none" />
+      {/* Subtle grain texture */}
+      <div className="absolute inset-0 z-[2] opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIgb3BhY2l0eT0iMSIvPjwvc3ZnPg==')]" />
 
-      {/* Main content */}
-      <div className="splash-content relative z-10 flex flex-col items-center gap-8">
-        {/* Logo / Name */}
-        <div className="flex items-center gap-1 perspective-[1000px]">
-          {name.split("").map((char, i) => (
-            <span
-              key={i}
-              className="splash-letter inline-block text-5xl md:text-7xl lg:text-8xl font-heading font-extrabold"
-              style={{
-                color: char === " " ? "transparent" : undefined,
-                width: char === " " ? "0.3em" : undefined,
-              }}
-            >
-              {char !== " " && (
-                <span className="bg-clip-text text-transparent bg-gradient-to-b from-slate-100 via-slate-200 to-slate-400">
-                  {char}
-                </span>
-              )}
-            </span>
-          ))}
+      {/* Content layer */}
+      <div className="relative z-[2] flex flex-col items-center gap-6">
+        {/* Anamorphic lens streak */}
+        <div className="splash-streak absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120vw] h-[2px] origin-center overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-400/60 to-transparent" />
+          <div className="splash-streak-shimmer absolute -left-full w-1/2 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent" />
         </div>
+
+        {/* Central glow */}
+        <div className="splash-glow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-indigo-500/8 via-cyan-500/5 to-transparent blur-[120px] pointer-events-none" />
+
+        {/* Name with mask reveal */}
+        <div className="splash-name-mask">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-extrabold tracking-tight">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-slate-100 via-slate-200 to-slate-400">
+              ABHISHEK
+            </span>
+          </h1>
+        </div>
+
+        {/* Underline accent */}
+        <div className="splash-underline w-24 md:w-32 h-[2px] bg-gradient-to-r from-indigo-500 to-cyan-500 origin-left" />
 
         {/* Tagline */}
-        <div className="splash-tagline text-zinc-500 text-sm md:text-base tracking-[0.3em] uppercase font-medium">
+        <p className="splash-tagline text-zinc-500 text-xs md:text-sm tracking-[0.4em] uppercase font-medium">
           Full Stack Developer
-        </div>
+        </p>
 
         {/* Progress bar */}
-        <div className="mt-8 w-48 md:w-64 flex flex-col items-center gap-3">
-          <div className="w-full h-[2px] bg-zinc-800 rounded-full overflow-hidden">
-            <div className="splash-progress-fill h-full bg-gradient-to-r from-indigo-500 to-cyan-500 origin-left rounded-full" />
+        <div className="splash-progress-track mt-6 w-48 md:w-56 flex flex-col items-center gap-3">
+          <div className="w-full h-[1px] bg-zinc-800/60 rounded-full overflow-hidden">
+            <div className="splash-progress-fill h-full bg-gradient-to-r from-indigo-500/80 to-cyan-500/80 origin-left rounded-full" />
           </div>
-          <span className="text-zinc-600 text-xs font-mono tabular-nums">
-            {count}%
+          <span className="text-zinc-600 text-[10px] font-mono tabular-nums tracking-widest">
+            {String(count).padStart(3, "0")}
           </span>
         </div>
       </div>
 
-      {/* Corner decorations */}
-      <div className="absolute top-8 left-8 w-12 h-12 border-l-2 border-t-2 border-zinc-800 splash-line-h" />
-      <div className="absolute top-8 right-8 w-12 h-12 border-r-2 border-t-2 border-zinc-800 splash-line-v" />
-      <div className="absolute bottom-8 left-8 w-12 h-12 border-l-2 border-b-2 border-zinc-800 splash-line-h" />
-      <div className="absolute bottom-8 right-8 w-12 h-12 border-r-2 border-b-2 border-zinc-800 splash-line-v" />
+      {/* Corner brackets */}
+      <div className="splash-bracket absolute top-6 left-6 w-8 h-8 border-l border-t border-zinc-700/50 z-[2]" />
+      <div className="splash-bracket absolute top-6 right-6 w-8 h-8 border-r border-t border-zinc-700/50 z-[2]" />
+      <div className="splash-bracket absolute bottom-6 left-6 w-8 h-8 border-l border-b border-zinc-700/50 z-[2]" />
+      <div className="splash-bracket absolute bottom-6 right-6 w-8 h-8 border-r border-b border-zinc-700/50 z-[2]" />
+
+      {/* Subtle vignette */}
+      <div className="absolute inset-0 z-[2] pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.6)_100%)]" />
     </div>
   );
 }
