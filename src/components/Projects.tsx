@@ -193,14 +193,6 @@ const projects = [
     border: "group-hover:border-green-500/50",
   },
   {
-    title: "Days To Us",
-    description: "A countdown and milestone tracking web application.",
-    link: "https://days-to-us.vercel.app",
-    tech: ["Next.js", "React", "Framer Motion"],
-    gradient: "from-pink-500/20 to-rose-500/20",
-    border: "group-hover:border-pink-500/50",
-  },
-  {
     title: "React To-Do App",
     description:
       "A robust task management app integrating local storage and smooth animations.",
